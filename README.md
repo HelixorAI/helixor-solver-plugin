@@ -2,8 +2,8 @@
 
 This plugin teaches the Cursor agent how to work with Helixor Solver. It helps
 you model an optimization problem (routing, scheduling, rostering, packing,
-allocation) and integrate the Helixor solver runtime or the hosted solver
-service. It also explains solve results and failures.
+allocation) and integrate the Helixor solver runtime or a solver service. It
+also explains solve results and failures.
 
 The plugin is guidance only. It contains Markdown skills and no executable
 code, hooks or MCP configuration. Installing it does not install the solver,
@@ -22,38 +22,19 @@ Status: **Preview**, version 0.1.0.
 Both solver skills share the modeling guidance in [`solver/`](solver/README.md):
 terminology, problem patterns, formulation, inputs, results and repair.
 
-## Requirements
-
-- Cursor with plugin support. In an organization, an administrator may need to
-  allow local or repository plugins.
-- To run solves, you also need Helixor solver access:
-  - **Embedded**: the Helixor runtime and solver packages, plus an entitled
-    licence. See the [quickstart](https://helixor.dev/guide/quickstart.html).
-  - **Hosted**: a solver service address and an access token.
-
-  The [deployment models tutorial](https://helixor.dev/tutorials/solver-deployment-models.html)
-  explains both modes.
-
 ## Install
 
-### Option A: from this repository URL
+You need Cursor and `git` (or a ZIP tool). In an organization, an
+administrator may need to allow local plugins.
 
-1. In Cursor, open **Customize** and go to the plugin search.
-2. Paste this repository's URL:
+The plugin installs into `~/.cursor/plugins/local/helixor-solver/`. That
+folder must contain `plugin.json` and `skills/` directly, not in a nested
+folder.
 
-   ```text
-   https://github.com/HelixorAI/helixor-solver-plugin
-   ```
-
-3. Select **Install**, then choose user or project scope.
-
-### Option B: from a local copy
-
-Use this route when you want to pin an exact version, or when repository
-plugins are not available to you.
+### From the repository
 
 ```bash
-git clone https://github.com/HelixorAI/helixor-solver-plugin.git
+git clone --branch v0.1.0 https://github.com/HelixorAI/helixor-solver-plugin.git
 ```
 
 ```bash
@@ -68,67 +49,175 @@ cp -R helixor-solver-plugin/. ~/.cursor/plugins/local/helixor-solver/
 rm -rf ~/.cursor/plugins/local/helixor-solver/.git
 ```
 
-`plugin.json` must sit directly in `~/.cursor/plugins/local/helixor-solver/`,
-not in a nested folder.
+### From the release ZIP
 
-To pin a release, check out its tag after cloning, for example
-`git -C helixor-solver-plugin checkout v0.1.0`.
-
-Each [release](https://github.com/HelixorAI/helixor-solver-plugin/releases)
-also has a ZIP of the same files and a `SHA256SUMS` file. To use the ZIP, check
-its hash, extract it into the same folder, and continue with the reload step:
+Download `helixor-solver-0.1.0-cursor.zip` and `SHA256SUMS` from the
+[v0.1.0 release](https://github.com/HelixorAI/helixor-solver-plugin/releases/tag/v0.1.0)
+into one folder. Check the ZIP, then extract it:
 
 ```bash
 shasum -a 256 -c SHA256SUMS
 ```
 
-### Reload and confirm
+```bash
+mkdir -p ~/.cursor/plugins/local/helixor-solver
+```
 
-1. Open the Command Palette and run **Developer: Reload Window**.
-2. Open **Customize** and find **helixor-solver**. Its skills should be listed
-   with no manifest or missing-file errors.
-3. Start a new Agent chat so the skills load.
+```bash
+unzip helixor-solver-0.1.0-cursor.zip -d ~/.cursor/plugins/local/helixor-solver
+```
 
-A safe first prompt:
+The check prints `helixor-solver-0.1.0-cursor.zip: OK`. The ZIP holds the same
+files as tag `v0.1.0`.
+
+### Load it
+
+- **Cursor app**: open the Command Palette and run **Developer: Reload
+  Window**. Open **Customize** and check that the plugin and its skills are
+  listed. Start a new Agent chat so the skills load.
+- **Cursor agent CLI** (`cursor-agent`): no reload is needed. The next run
+  picks up the plugin.
+
+### Confirm the install
+
+Ask the agent:
 
 ```text
 List the installed Helixor solver skills and briefly explain when to use each one. Do not change files or connect services.
 ```
 
-## Use
+It names `helixor-platform`, `helixor-solver-as-a-service` and
+`helixor-solver-runtime`, and describes each one. With the plugin folder
+removed, the same question gets the answer that no Helixor solver skills are
+installed.
 
-Describe your problem in plain terms, attach or point to your data, and say
-whether you want embedded or hosted execution. The agent asks about anything
-that changes the model before it writes integration code.
+## Run a solve
 
-Example prompts:
+The agent writes integration code. To run that code, you need the Helixor
+runtime and a solver service to call.
 
-```text
-I need to plan delivery routes for 12 vans from one depot, with customer time windows and van capacity. Help me model it for the Helixor solver before writing any code.
+### Prerequisites
+
+- Python 3.12.
+- The Helixor runtime wheels you receive with your licence:
+  `helixor_runtime-0.3.1-py3-none-any.whl`,
+  `helixor_constraint_network-1.0.1-py3-none-any.whl` and `SHA256SUMS`. See
+  [Installation](https://helixor.dev/guide/installation.html).
+- The runtime's `solvers-hosted` extra. It installs the hosted solver client,
+  `helixor-solver-contract`, from a Git repository, so your Helixor contact must
+  give you access to that repository first.
+- A solver service address and a token for it.
+
+Install into a virtual environment, from the folder that holds the wheels:
+
+```bash
+python3.12 -m venv .venv
 ```
 
-```text
-Using the Helixor runtime in embedded mode, write a small script that solves this routing problem and prints the verdict, cost and any shortfalls.
+```bash
+shasum -a 256 -c SHA256SUMS
 ```
 
-```text
-My hosted solve came back infeasible. Here is the response. Explain what blocked it and what I could change.
+```bash
+.venv/bin/python -m pip install "./helixor_runtime-0.3.1-py3-none-any.whl[solvers-hosted]" ./helixor_constraint_network-1.0.1-py3-none-any.whl
 ```
 
-What to expect:
+### Point the client at a service
 
-- The agent separates the rules you gave from defaults and assumptions.
-- The agent picks embedded or hosted mode only on your instruction. It never
-  falls back from one mode to the other on its own.
-- An infeasible result is reported as infeasible, with the reasons. The agent
-  does not relax your rules to make a plan look feasible.
+The client reads two environment variables. It sends the token as
+`Authorization: Bearer <token>` and sends no other identity headers.
+
+```bash
+export HELIXOR_SOLVER_URL=<your solver service address>
+```
+
+```bash
+export HELIXOR_SOLVER_TOKEN=<your token>
+```
+
+If you run `helixor-solver-server` yourself for local testing, start it on any
+free port with authentication off and local pack storage:
+
+```bash
+HELIXOR_AUTH_DISABLED=1 HELIXOR_SOLVER_PACK_STORAGE=local python -m uvicorn helixor_solver_server.app:app --host 127.0.0.1 --port 8463
+```
+
+Then set `HELIXOR_SOLVER_URL=http://127.0.0.1:8463`. With authentication off,
+any token value works. The example script still reads
+`HELIXOR_SOLVER_TOKEN`, so set it to any non-empty value.
+
+### Worked example: two vans, six stops
+
+Ask the agent:
+
+```text
+Use the Helixor solver runtime in hosted mode. Write solve_routes.py. The script reads the service address from HELIXOR_SOLVER_URL and the bearer token from HELIXOR_SOLVER_TOKEN. It plans delivery routes: one depot at (0,0), six customers at (10,0), (20,0), (30,0), (0,10), (0,20), (0,30), each with demand 1, two vans of capacity 3, euclidean distance. It prints the verdict, cost and routes, and the shortfalls if the answer is not feasible. Send no realm or tenant headers.
+```
+
+The agent wrote this script:
+
+```python
+import os
+from helixor_runtime import HelixorSolver
+
+problem = {
+    "coordinates": [[0, 0], [10, 0], [20, 0], [30, 0], [0, 10], [0, 20], [0, 30]],
+    "demands": [0, 1, 1, 1, 1, 1, 1],
+    "capacity": 3,
+    "n_vehicles": 2,
+    "distance_metric": "euclidean",
+}
+
+solver = HelixorSolver(
+    mode="hosted",
+    base_url=os.environ["HELIXOR_SOLVER_URL"],
+    auth=os.environ["HELIXOR_SOLVER_TOKEN"],
+    timeout_seconds=30,
+)
+
+answer = solver.solve(
+    "vrp",
+    problem,
+    options={"engine": "local_search", "time_limit_seconds": 0.3},
+)
+
+print(answer["verdict"], answer["cost"], answer["solution"])
+if answer["verdict"] != "feasible":
+    print(answer["shortfalls"])
+```
+
+Run it with the virtual environment's Python:
+
+```bash
+.venv/bin/python solve_routes.py
+```
+
+The client sends `POST /api/v1/solve/vrp` to the service. The answer:
+
+```text
+feasible 120.0 {'routes': [[0, 3, 2, 1, 0], [0, 6, 5, 4, 0]], 'route_rows': [{'vehicle': 1, 'stops': [0, 3, 2, 1, 0], 'load': 3.0, 'distance': 60.0}, {'vehicle': 2, 'stops': [0, 6, 5, 4, 0], 'load': 3.0, 'distance': 60.0}], 'distance': 120.0, 'distance_unit': 'coordinate_units', 'distance_metric': 'euclidean'}
+```
+
+Each van serves one line of three stops and travels 60 coordinate units, for a
+total cost of 120. Distances are in coordinate units, not kilometres.
+
+To see a failure, change `"n_vehicles": 2` to `"n_vehicles": 1` and run it
+again. The verdict is `infeasible`, the cost and solution are `None`, and the
+shortfall names the cause:
+
+```text
+infeasible None None
+[{'kind': 'pre_solve_check', 'check_id': 'fleet_capacity', ..., 'demand': 6.0, 'supply': 3.0, 'deficit': 3.0, ..., 'message': 'Total demand is 6 units but the fleet carries 3 (1 vehicle(s) x 3); shortfall 3 units. No route plan can serve every stop. Review: Fleet -> Vehicle count and capacity.', ...}]
+```
+
+If the service cannot be reached or answers outside the solve contract, the
+client raises `SolverServiceError`. It does not fall back to solving locally.
 
 ## Update and remove
 
-- **Option A**: update or uninstall from Cursor's plugin panel.
-- **Option B**: replace the contents of
-  `~/.cursor/plugins/local/helixor-solver/` with the new version, then reload
-  the window. To remove the plugin, delete that folder and reload.
+To update, replace the contents of `~/.cursor/plugins/local/helixor-solver/`
+with the new version and reload the Cursor window. To remove the plugin,
+delete that folder and reload.
 
 ## Troubleshooting
 
@@ -136,10 +225,11 @@ What to expect:
 | --- | --- |
 | Local plugins are blocked | Your organization controls plugin imports. Ask your administrator to allow this plugin. |
 | The folder is present but no skills load | Look for an extra folder level. The destination must contain `plugin.json` and `skills/` directly. Reload after fixing it. |
-| Two copies appear | A repository install and a local copy can both be present. Keep one. |
-| Skills load but a solve fails to start | The plugin does not supply the runtime, a licence or a service token. Set those up from the requirements above. |
+| `pip` cannot fetch `helixor-solver-contract` | The `solvers-hosted` extra needs access to its Git repository. Ask your Helixor contact for access. |
+| `KeyError: 'HELIXOR_SOLVER_URL'` | Export both environment variables in the shell that runs the script. |
+| `SolverServiceError` | Check the service address, that the service is running, and the token. |
 
 ## Licence
 
 Copyright © 2026 Helixor AI, Inc. All rights reserved. See [LICENSE](LICENSE).
-Helixor runtime and services are licensed separately.
+The Helixor runtime and services are licensed separately.
