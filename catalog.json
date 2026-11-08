@@ -1,0 +1,27 @@
+{
+  "catalog_version": 1,
+  "platform_skill": "skills/helixor-platform/SKILL.md",
+  "purpose": "Documentation routing inventory; not a runtime capability manifest",
+  "services": [
+    {
+      "content_status": "authored_unqualified",
+      "id": "solver-runtime",
+      "interface_evidence": "locally_verified",
+      "reference_roots": [
+        "solver"
+      ],
+      "skill": "skills/helixor-solver-runtime/SKILL.md",
+      "title": "Solver runtime"
+    },
+    {
+      "content_status": "authored_unqualified",
+      "id": "solver-as-a-service",
+      "interface_evidence": "not_verified",
+      "reference_roots": [
+        "solver"
+      ],
+      "skill": "skills/helixor-solver-as-a-service/SKILL.md",
+      "title": "Solver as a service"
+    }
+  ]
+}

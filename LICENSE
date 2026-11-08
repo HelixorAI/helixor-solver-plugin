@@ -1,0 +1,20 @@
+Copyright (c) 2026 Helixor AI, Inc. All rights reserved.
+
+This repository contains guidance files (the "Plugin") for using Helixor
+products in AI coding assistants.
+
+You may download, install and use the Plugin, unmodified or modified for
+your own internal use, in your development tools to evaluate, build with or
+operate Helixor products. No other rights are granted. In particular, you
+may not sell, sublicense or redistribute the Plugin, in whole or in part,
+except as part of your own internal deployment.
+
+The Plugin does not include or license the Helixor runtime, solver engines,
+services or any licence keys or tokens. Those are provided under their own
+agreements with Helixor AI, Inc.
+
+THE PLUGIN IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
+HELIXOR AI, INC. BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE PLUGIN OR ITS USE.

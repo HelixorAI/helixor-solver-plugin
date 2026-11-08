@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "author": {
+    "name": "Helixor AI, Inc.",
+    "url": "https://helixor.dev"
+  },
+  "description": "Helixor Solver guidance for modeling optimization problems and integrating the Helixor solver runtime or hosted solver service. Preview.",
+  "homepage": "https://helixor.dev",
+  "keywords": [
+    "helixor",
+    "solver",
+    "optimization",
+    "routing",
+    "scheduling"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "name": "helixor-solver",
+  "repository": "https://github.com/HelixorAI/helixor-solver-plugin",
+  "version": "0.1.0"
+}
