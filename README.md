@@ -31,6 +31,17 @@ The plugin installs into `~/.cursor/plugins/local/helixor-solver/`. That
 folder must contain `plugin.json` and `skills/` directly, not in a nested
 folder.
 
+### One command (macOS and Linux)
+
+This downloads the v0.1.0 release ZIP and unpacks it into the plugin folder,
+replacing any earlier copy:
+
+```bash
+d="$HOME/.cursor/plugins/local/helixor-solver"; z="$(mktemp)"; curl -fsSL https://github.com/HelixorAI/helixor-solver-plugin/releases/download/v0.1.0/helixor-solver-0.1.0-cursor.zip -o "$z" && rm -rf "$d" && mkdir -p "$d" && unzip -q "$z" -d "$d" && rm "$z" && echo "installed to $d"
+```
+
+Then [load it](#load-it).
+
 ### From the repository
 
 ```bash
